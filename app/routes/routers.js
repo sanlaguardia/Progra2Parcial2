@@ -4,11 +4,11 @@ const router = express.Router();
  
 const departamentos = require('../controllers/controller.js');
 
-router.post('/api/users/create', departamentos.createModel);
-router.get('/api/users/all', departamentos.retrieveAllModels);
-router.get('/api/users/onebyid/:id', departamentos.getModelById);
-router.put('/api/users/update/:id', departamentos.updateModelById);
-router.delete('/api/users/delete/:id', departamentos.deleteModelById);
+router.post('/api/users/create', departamentos.createUser);
+router.get('/api/users/all', departamentos.retrieveAllUsers);
+router.get('/api/users/onebyid/:id', departamentos.getUserById);
+router.put('/api/users/update/:id', departamentos.updateUserById);
+router.delete('/api/users/delete/:id', departamentos.deleteUserById);
 
 router.post('/api/proyetos/create', departamentos.createProyecto);
 router.get('/api/proyetos/all', departamentos.retrieveAllProyectos);
