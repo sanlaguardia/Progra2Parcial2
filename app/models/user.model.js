@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-	const Model = sequelize.define('model', {	
+	const User = sequelize.define('user', {	
 		id: {
 			type: Sequelize.INTEGER,
 			autoIncrement: true,
@@ -8,26 +8,17 @@ module.exports = (sequelize, Sequelize) => {
         nombre: {
             type: Sequelize.STRING
     },
-        apellido: {
-            type: Sequelize.STRING
-    },
         email: {
             type: Sequelize.STRING
     },
-        telefono: {
-            type: Sequelize.INTEGER
-    },
-        direccion: {
+        contraseña: {
             type: Sequelize.STRING
     },
-        fechaRegristro: {
+        fechaCreacion: {
             type: Sequelize.DATE
-    },
-        estado: {
-            type: Sequelize.STRING
     },
 
 	});
 	
-	return Model;
+	return User;
 }

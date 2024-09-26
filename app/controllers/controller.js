@@ -1,25 +1,22 @@
 const db = require('../config/db.config.js');
-const Model = db.Model;
+const User = db.User;
 
-// Crear un nuevo Model
-exports.createModel = (req, res) => {
-    let model = {};
+// Crear un nuevo usuario
+exports.createUser = (req, res) => {
+    let user = {};
 
     try {
-        // Construir objeto Model desde el cuerpo de la solicitud
-        model.nombre = req.body.nombre;
-        model.apellido = req.body.apellido;
-        model.email = req.body.email;
-        model.telefono = req.body.telefono;
-        model.direccion = req.body.direccion;
-        model.fechaRegristro = req.body.fechaRegristro;
-        model.estado = req.body.estado;
+        // Construir objeto User desde el cuerpo de la solicitud
+        user.nombre = req.body.nombre;
+        user.email = req.body.email;
+        user.contraseña = req.body.contraseña;
+        user.fechaCreacion = new Date(); // Asignar fecha actual
 
         // Guardar en la base de datos
-        Model.create(model).then(result => {
+        User.create(user).then(result => {
             res.status(200).json({
-                message: "Model creado exitosamente con ID = " + result.id,
-                model: result,
+                message: "Usuario creado exitosamente con ID = " + result.id,
+                user: result,
             });
         });
     } catch (error) {
@@ -30,13 +27,13 @@ exports.createModel = (req, res) => {
     }
 };
 
-// Obtener todos los Models
-exports.retrieveAllModels = (req, res) => {
-    Model.findAll()
-        .then(models => {
+// Obtener todos los usuarios
+exports.retrieveAllUsers = (req, res) => {
+    User.findAll()
+        .then(users => {
             res.status(200).json({
-                message: "¡Models obtenidos exitosamente!",
-                models: models
+                message: "¡Usuarios obtenidos exitosamente!",
+                users: users
             });
         })
         .catch(error => {
@@ -49,20 +46,20 @@ exports.retrieveAllModels = (req, res) => {
         });
 };
 
-// Obtener un Model por ID
-exports.getModelById = (req, res) => {
-    let modelId = req.params.id;
+// Obtener un usuario por ID
+exports.getUserById = (req, res) => {
+    let userId = req.params.id;
 
-    Model.findByPk(modelId)
-        .then(model => {
-            if (model) {
+    User.findByPk(userId)
+        .then(user => {
+            if (user) {
                 res.status(200).json({
-                    message: "Model obtenido exitosamente con ID = " + modelId,
-                    model: model
+                    message: "Usuario obtenido exitosamente con ID = " + userId,
+                    user: user
                 });
             } else {
                 res.status(404).json({
-                    message: "Model no encontrado con ID = " + modelId,
+                    message: "Usuario no encontrado con ID = " + userId,
                     error: "404"
                 });
             }
@@ -77,104 +74,94 @@ exports.getModelById = (req, res) => {
         });
 };
 
-// Actualizar un Model por ID
-exports.updateModelById = async (req, res) => {
+// Actualizar un usuario por ID
+exports.updateUserById = async (req, res) => {
     try {
-        let modelId = req.params.id;
-        let model = await Model.findByPk(modelId);
+        let userId = req.params.id;
+        let user = await User.findByPk(userId);
 
-        if (!model) {
+        if (!user) {
             res.status(404).json({
-                message: "Model no encontrado para actualizar con ID = " + modelId,
-                model: "",
+                message: "Usuario no encontrado para actualizar con ID = " + userId,
                 error: "404"
             });
         } else {
             let updatedObject = {
                 nombre: req.body.nombre,
-                apellido: req.body.apellido,
                 email: req.body.email,
-                telefono: req.body.telefono,
-                direccion: req.body.direccion,
-                fechaRegristro: req.body.fechaRegristro,
-                estado: req.body.estado
+                contraseña: req.body.contraseña
             };
 
-            let result = await Model.update(updatedObject, {
+            let result = await User.update(updatedObject, {
                 returning: true,
-                where: { id: modelId }
+                where: { id: userId }
             });
 
             if (!result) {
                 res.status(500).json({
-                    message: "Error -> No se puede actualizar el Model con ID = " + req.params.id,
+                    message: "Error -> No se puede actualizar el usuario con ID = " + userId,
                     error: "No se puede actualizar",
                 });
             } else {
                 res.status(200).json({
-                    message: "Model actualizado exitosamente con ID = " + modelId,
-                    model: updatedObject,
+                    message: "Usuario actualizado exitosamente con ID = " + userId,
+                    user: updatedObject,
                 });
             }
         }
     } catch (error) {
         res.status(500).json({
-            message: "Error -> No se puede actualizar el Model con ID = " + req.params.id,
+            message: "Error -> No se puede actualizar el usuario con ID = " + userId,
             error: error.message
         });
     }
 };
 
-// Eliminar un Model por ID
-exports.deleteModelById = async (req, res) => {
+// Eliminar un usuario por ID
+exports.deleteUserById = async (req, res) => {
     try {
-        let modelId = req.params.id;
-        let model = await Model.findByPk(modelId);
+        let userId = req.params.id;
+        let user = await User.findByPk(userId);
 
-        if (!model) {
+        if (!user) {
             res.status(404).json({
-                message: "No existe un Model con ID = " + modelId,
+                message: "No existe un usuario con ID = " + userId,
                 error: "404",
             });
         } else {
-            await model.destroy();
+            await user.destroy();
             res.status(200).json({
-                message: "Model eliminado exitosamente con ID = " + modelId,
-                model: model,
+                message: "Usuario eliminado exitosamente con ID = " + userId,
+                user: user,
             });
         }
     } catch (error) {
         res.status(500).json({
-            message: "Error -> No se puede eliminar el Model con ID = " + req.params.id,
+            message: "Error -> No se puede eliminar el usuario con ID = " + userId,
             error: error.message,
         });
     }
 };
 
-/*
-//---------------------------------- Libros ------------------------------------
-const Libro = db.Libro;
+//----------------------------------------------- Proyectos ------------------------------------------
+const Proyecto = db.Proyecto;
 
-// Crear un nuevo libro
-exports.createLibro = (req, res) => {
-    let libro = {};
+// Crear un nuevo proyecto
+exports.createProyecto = (req, res) => {
+    let proyecto = {};
 
     try {
-        // Construir objeto Libro desde el cuerpo de la solicitud
-        libro.titulo = req.body.titulo;
-        libro.autor = req.body.autor;
-        libro.isbn = req.body.isbn;
-        libro.editorial = req.body.editorial;
-        libro.anioPublicacion = req.body.anioPublicacion;
-        libro.categoria = req.body.categoria;
-        libro.cantidadPosible = req.body.cantidadPosible;
-        libro.ubicacion = req.body.ubicacion;
+        // Construir objeto Proyecto desde el cuerpo de la solicitud
+        proyecto.nombre = req.body.nombre;
+        proyecto.descripcion = req.body.descripcion;
+        proyecto.fechaCreacion = req.body.fechaCreacion ? new Date(req.body.fechaCreacion) : new Date(); // Fecha actual si no se envía
+        proyecto.fechaVencimiento = req.body.fechaVencimiento ? new Date(req.body.fechaVencimiento) : null;
 
         // Guardar en la base de datos
-        Libro.create(libro).then(result => {
+        Proyecto.create(proyecto).then(result => {
             res.status(200).json({
-                message: "Libro creado exitosamente con ID = " + result.id,
-                libro: result,
+                message: "Proyecto creado exitosamente con ID = " + result.id,
+                proyecto: result,
             });
         });
     } catch (error) {
@@ -185,13 +172,13 @@ exports.createLibro = (req, res) => {
     }
 };
 
-// Obtener todos los libros
-exports.retrieveAllLibros = (req, res) => {
-    Libro.findAll()
-        .then(libros => {
+// Obtener todos los proyectos
+exports.retrieveAllProyectos = (req, res) => {
+    Proyecto.findAll()
+        .then(proyectos => {
             res.status(200).json({
-                message: "¡Libros obtenidos exitosamente!",
-                libros: libros
+                message: "¡Proyectos obtenidos exitosamente!",
+                proyectos: proyectos
             });
         })
         .catch(error => {
@@ -204,20 +191,20 @@ exports.retrieveAllLibros = (req, res) => {
         });
 };
 
-// Obtener un libro por ID
-exports.getLibroById = (req, res) => {
-    let libroId = req.params.id;
+// Obtener un proyecto por ID
+exports.getProyectoById = (req, res) => {
+    let proyectoId = req.params.id;
 
-    Libro.findByPk(libroId)
-        .then(libro => {
-            if (libro) {
+    Proyecto.findByPk(proyectoId)
+        .then(proyecto => {
+            if (proyecto) {
                 res.status(200).json({
-                    message: "Libro obtenido exitosamente con ID = " + libroId,
-                    libro: libro
+                    message: "Proyecto obtenido exitosamente con ID = " + proyectoId,
+                    proyecto: proyecto
                 });
             } else {
                 res.status(404).json({
-                    message: "Libro no encontrado con ID = " + libroId,
+                    message: "Proyecto no encontrado con ID = " + proyectoId,
                     error: "404"
                 });
             }
@@ -232,225 +219,218 @@ exports.getLibroById = (req, res) => {
         });
 };
 
-// Actualizar un libro por ID
-exports.updateLibroById = async (req, res) => {
+// Actualizar un proyecto por ID
+exports.updateProyectoById = async (req, res) => {
     try {
-        let libroId = req.params.id;
-        let libro = await Libro.findByPk(libroId);
+        let proyectoId = req.params.id;
+        let proyecto = await Proyecto.findByPk(proyectoId);
 
-        if (!libro) {
+        if (!proyecto) {
             res.status(404).json({
-                message: "Libro no encontrado para actualizar con ID = " + libroId,
-                libro: "",
-                error: "404"
-            });
-        } else {
-            let updatedObject = {
-                titulo: req.body.titulo,
-                autor: req.body.autor,
-                isbn: req.body.isbn,
-                editorial: req.body.editorial,
-                anioPublicacion: req.body.anioPublicacion,
-                categoria: req.body.categoria,
-                cantidadPosible: req.body.cantidadPosible,
-                ubicacion: req.body.ubicacion
-            };
-
-            let result = await Libro.update(updatedObject, {
-                returning: true,
-                where: { id: libroId }
-            });
-
-            if (!result) {
-                res.status(500).json({
-                    message: "Error -> No se puede actualizar el libro con ID = " + req.params.id,
-                    error: "No se puede actualizar",
-                });
-            } else {
-                res.status(200).json({
-                    message: "Libro actualizado exitosamente con ID = " + libroId,
-                    libro: updatedObject,
-                });
-            }
-        }
-    } catch (error) {
-        res.status(500).json({
-            message: "Error -> No se puede actualizar el libro con ID = " + req.params.id,
-            error: error.message
-        });
-    }
-};
-
-// Eliminar un libro por ID
-exports.deleteLibroById = async (req, res) => {
-    try {
-        let libroId = req.params.id;
-        let libro = await Libro.findByPk(libroId);
-
-        if (!libro) {
-            res.status(404).json({
-                message: "No existe un libro con ID = " + libroId,
-                error: "404",
-            });
-        } else {
-            await libro.destroy();
-            res.status(200).json({
-                message: "Libro eliminado exitosamente con ID = " + libroId,
-                libro: libro,
-            });
-        }
-    } catch (error) {
-        res.status(500).json({
-            message: "Error -> No se puede eliminar el libro con ID = " + req.params.id,
-            error: error.message,
-        });
-    }
-};
-
-//----------------------------------------- Autor ------------------------------------------------
-const Autor = db.Autor;
-
-// Crear un nuevo autor
-exports.createAutor = (req, res) => {
-    let autor = {};
-
-    try {
-        // Construir objeto Autor desde el cuerpo de la solicitud
-        autor.nombre = req.body.nombre;
-        autor.apellido = req.body.apellido;
-        autor.nacionalidad = req.body.nacionalidad;
-        autor.fechaNacimiento = req.body.fechaNacimiento;
-
-        // Guardar en la base de datos
-        Autor.create(autor).then(result => {
-            res.status(200).json({
-                message: "Autor creado exitosamente con ID = " + result.id,
-                autor: result,
-            });
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Error!",
-            error: error.message
-        });
-    }
-};
-
-// Obtener todos los autores
-exports.retrieveAllAutores = (req, res) => {
-    Autor.findAll()
-        .then(autores => {
-            res.status(200).json({
-                message: "¡Autores obtenidos exitosamente!",
-                autores: autores
-            });
-        })
-        .catch(error => {
-            console.log(error);
-
-            res.status(500).json({
-                message: "Error!",
-                error: error
-            });
-        });
-};
-
-// Obtener un autor por ID
-exports.getAutorById = (req, res) => {
-    let autorId = req.params.id;
-
-    Autor.findByPk(autorId)
-        .then(autor => {
-            if (autor) {
-                res.status(200).json({
-                    message: "Autor obtenido exitosamente con ID = " + autorId,
-                    autor: autor
-                });
-            } else {
-                res.status(404).json({
-                    message: "Autor no encontrado con ID = " + autorId,
-                    error: "404"
-                });
-            }
-        })
-        .catch(error => {
-            console.log(error);
-
-            res.status(500).json({
-                message: "Error!",
-                error: error
-            });
-        });
-};
-
-// Actualizar un autor por ID
-exports.updateAutorById = async (req, res) => {
-    try {
-        let autorId = req.params.id;
-        let autor = await Autor.findByPk(autorId);
-
-        if (!autor) {
-            res.status(404).json({
-                message: "Autor no encontrado para actualizar con ID = " + autorId,
-                autor: "",
+                message: "Proyecto no encontrado para actualizar con ID = " + proyectoId,
                 error: "404"
             });
         } else {
             let updatedObject = {
                 nombre: req.body.nombre,
-                apellido: req.body.apellido,
-                nacionalidad: req.body.nacionalidad,
-                fechaNacimiento: req.body.fechaNacimiento
+                descripcion: req.body.descripcion,
+                fechaCreacion: req.body.fechaCreacion ? new Date(req.body.fechaCreacion) : proyecto.fechaCreacion,
+                fechaVencimiento: req.body.fechaVencimiento ? new Date(req.body.fechaVencimiento) : proyecto.fechaVencimiento
             };
 
-            let result = await Autor.update(updatedObject, {
+            let result = await Proyecto.update(updatedObject, {
                 returning: true,
-                where: { id: autorId }
+                where: { id: proyectoId }
             });
 
             if (!result) {
                 res.status(500).json({
-                    message: "Error -> No se puede actualizar el autor con ID = " + req.params.id,
+                    message: "Error -> No se puede actualizar el proyecto con ID = " + proyectoId,
                     error: "No se puede actualizar",
                 });
             } else {
                 res.status(200).json({
-                    message: "Autor actualizado exitosamente con ID = " + autorId,
-                    autor: updatedObject,
+                    message: "Proyecto actualizado exitosamente con ID = " + proyectoId,
+                    proyecto: updatedObject,
                 });
             }
         }
     } catch (error) {
         res.status(500).json({
-            message: "Error -> No se puede actualizar el autor con ID = " + req.params.id,
+            message: "Error -> No se puede actualizar el proyecto con ID = " + proyectoId,
             error: error.message
         });
     }
 };
 
-// Eliminar un autor por ID
-exports.deleteAutorById = async (req, res) => {
+// Eliminar un proyecto por ID
+exports.deleteProyectoById = async (req, res) => {
     try {
-        let autorId = req.params.id;
-        let autor = await Autor.findByPk(autorId);
+        let proyectoId = req.params.id;
+        let proyecto = await Proyecto.findByPk(proyectoId);
 
-        if (!autor) {
+        if (!proyecto) {
             res.status(404).json({
-                message: "No existe un autor con ID = " + autorId,
+                message: "No existe un proyecto con ID = " + proyectoId,
                 error: "404",
             });
         } else {
-            await autor.destroy();
+            await proyecto.destroy();
             res.status(200).json({
-                message: "Autor eliminado exitosamente con ID = " + autorId,
-                autor: autor,
+                message: "Proyecto eliminado exitosamente con ID = " + proyectoId,
+                proyecto: proyecto,
             });
         }
     } catch (error) {
         res.status(500).json({
-            message: "Error -> No se puede eliminar el autor con ID = " + req.params.id,
+            message: "Error -> No se puede eliminar el proyecto con ID = " + proyectoId,
             error: error.message,
         });
     }
 };
-*/
+
+//--------------------------------------- Tareas ----------------------------------------
+const Tarea = db.Tarea;
+
+// Crear una nueva tarea
+exports.createTarea = (req, res) => {
+    let tarea = {};
+
+    try {
+        // Construir objeto Tarea desde el cuerpo de la solicitud
+        tarea.nombre = req.body.nombre;
+        tarea.estado = req.body.estado;
+        tarea.fechaCreacion = req.body.fechaCreacion ? new Date(req.body.fechaCreacion) : new Date(); // Fecha actual si no se envía
+        tarea.fechaVencimiento = req.body.fechaVencimiento ? new Date(req.body.fechaVencimiento) : null;
+
+        // Guardar en la base de datos
+        Tarea.create(tarea).then(result => {
+            res.status(200).json({
+                message: "Tarea creada exitosamente con ID = " + result.id,
+                tarea: result,
+            });
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error!",
+            error: error.message
+        });
+    }
+};
+
+// Obtener todas las tareas
+exports.retrieveAllTareas = (req, res) => {
+    Tarea.findAll()
+        .then(tareas => {
+            res.status(200).json({
+                message: "¡Tareas obtenidas exitosamente!",
+                tareas: tareas
+            });
+        })
+        .catch(error => {
+            console.log(error);
+
+            res.status(500).json({
+                message: "Error!",
+                error: error
+            });
+        });
+};
+
+// Obtener una tarea por ID
+exports.getTareaById = (req, res) => {
+    let tareaId = req.params.id;
+
+    Tarea.findByPk(tareaId)
+        .then(tarea => {
+            if (tarea) {
+                res.status(200).json({
+                    message: "Tarea obtenida exitosamente con ID = " + tareaId,
+                    tarea: tarea
+                });
+            } else {
+                res.status(404).json({
+                    message: "Tarea no encontrada con ID = " + tareaId,
+                    error: "404"
+                });
+            }
+        })
+        .catch(error => {
+            console.log(error);
+
+            res.status(500).json({
+                message: "Error!",
+                error: error
+            });
+        });
+};
+
+// Actualizar una tarea por ID
+exports.updateTareaById = async (req, res) => {
+    try {
+        let tareaId = req.params.id;
+        let tarea = await Tarea.findByPk(tareaId);
+
+        if (!tarea) {
+            res.status(404).json({
+                message: "Tarea no encontrada para actualizar con ID = " + tareaId,
+                error: "404"
+            });
+        } else {
+            let updatedObject = {
+                nombre: req.body.nombre,
+                estado: req.body.estado,
+                fechaCreacion: req.body.fechaCreacion ? new Date(req.body.fechaCreacion) : tarea.fechaCreacion,
+                fechaVencimiento: req.body.fechaVencimiento ? new Date(req.body.fechaVencimiento) : tarea.fechaVencimiento
+            };
+
+            let result = await Tarea.update(updatedObject, {
+                returning: true,
+                where: { id: tareaId }
+            });
+
+            if (!result) {
+                res.status(500).json({
+                    message: "Error -> No se puede actualizar la tarea con ID = " + tareaId,
+                    error: "No se puede actualizar",
+                });
+            } else {
+                res.status(200).json({
+                    message: "Tarea actualizada exitosamente con ID = " + tareaId,
+                    tarea: updatedObject,
+                });
+            }
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Error -> No se puede actualizar la tarea con ID = " + tareaId,
+            error: error.message
+        });
+    }
+};
+
+// Eliminar una tarea por ID
+exports.deleteTareaById = async (req, res) => {
+    try {
+        let tareaId = req.params.id;
+        let tarea = await Tarea.findByPk(tareaId);
+
+        if (!tarea) {
+            res.status(404).json({
+                message: "No existe una tarea con ID = " + tareaId,
+                error: "404",
+            });
+        } else {
+            await tarea.destroy();
+            res.status(200).json({
+                message: "Tarea eliminada exitosamente con ID = " + tareaId,
+                tarea: tarea,
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Error -> No se puede eliminar la tarea con ID = " + tareaId,
+            error: error.message,
+        });
+    }
+};
