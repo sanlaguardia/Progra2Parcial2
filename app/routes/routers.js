@@ -22,4 +22,10 @@ router.get('/api/tareas/onebyid/:id', departamentos.getTareaById);
 router.put('/api/tareas/update/:id', departamentos.updateTareaById);
 router.delete('/api/tareas/delete/:id', departamentos.deleteTareaById);
 
+router.post('/api/juegos/create', departamentos.createJuego);
+router.get('/api/juegos/all', departamentos.retrieveAllJuegos);
+router.get('/api/juegos/onebyid/:id', departamentos.getJuegoById);
+router.put('/api/juegos/update/:id', departamentos.updateJuegoById);
+router.delete('/api/juegos/delete/:id', departamentos.deleteJuegoById);
+
 module.exports = router;

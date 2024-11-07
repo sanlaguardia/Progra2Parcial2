@@ -434,3 +434,158 @@ exports.deleteTareaById = async (req, res) => {
         });
     }
 };
+//---------------------------------- Juegos ----------------------------------------
+const Juego = db.Juego;
+
+// Crear un nuevo juego
+exports.createJuego = (req, res) => {
+    let juego = {};
+
+    try {
+        // Construir objeto Juego desde el cuerpo de la solicitud
+        juego.nombreJuego = req.body.nombreJuego;
+        juego.genero = req.body.genero;
+        juego.plataforma = req.body.plataforma;
+        juego.fechaLanzamiento = req.body.fechaLanzamiento;
+        juego.precioAlquiler = req.body.precioAlquiler;
+        juego.disponibilidad = req.body.disponibilidad;
+        juego.fechaAlquiler = req.body.fechaAlquiler;
+        juego.fechaDevolucion = req.body.fechaDevolucion;
+        juego.nombreCliente = req.body.nombreCliente;
+        juego.comentarios = req.body.comentarios;
+
+        // Guardar en la base de datos
+        Juego.create(juego).then(result => {
+            res.status(200).json({
+                message: "Juego creado exitosamente con ID = " + result.idJuego,
+                juego: result,
+            });
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error!",
+            error: error.message
+        });
+    }
+};
+
+// Obtener todos los juegos
+exports.retrieveAllJuegos = (req, res) => {
+    Juego.findAll()
+        .then(juegos => {
+            res.status(200).json({
+                message: "¡Juegos obtenidos exitosamente!",
+                juegos: juegos
+            });
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(500).json({
+                message: "Error!",
+                error: error
+            });
+        });
+};
+
+// Obtener un juego por ID
+exports.getJuegoById = (req, res) => {
+    let juegoId = req.params.id;
+
+    Juego.findByPk(juegoId)
+        .then(juego => {
+            if (juego) {
+                res.status(200).json({
+                    message: "Juego obtenido exitosamente con ID = " + juegoId,
+                    juego: juego
+                });
+            } else {
+                res.status(404).json({
+                    message: "Juego no encontrado con ID = " + juegoId,
+                    error: "404"
+                });
+            }
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(500).json({
+                message: "Error!",
+                error: error
+            });
+        });
+};
+
+// Actualizar un juego por ID
+exports.updateJuegoById = async (req, res) => {
+    try {
+        let juegoId = req.params.id;
+        let juego = await Juego.findByPk(juegoId);
+
+        if (!juego) {
+            res.status(404).json({
+                message: "Juego no encontrado para actualizar con ID = " + juegoId,
+                error: "404"
+            });
+        } else {
+            let updatedObject = {
+                nombreJuego: req.body.nombreJuego,
+                genero: req.body.genero,
+                plataforma: req.body.plataforma,
+                fechaLanzamiento: req.body.fechaLanzamiento,
+                precioAlquiler: req.body.precioAlquiler,
+                disponibilidad: req.body.disponibilidad,
+                fechaAlquiler: req.body.fechaAlquiler,
+                fechaDevolucion: req.body.fechaDevolucion,
+                nombreCliente: req.body.nombreCliente,
+                comentarios: req.body.comentarios
+            };
+
+            let result = await Juego.update(updatedObject, {
+                returning: true,
+                where: { idJuego: juegoId }
+            });
+
+            if (!result) {
+                res.status(500).json({
+                    message: "Error -> No se puede actualizar el juego con ID = " + juegoId,
+                    error: "No se puede actualizar",
+                });
+            } else {
+                res.status(200).json({
+                    message: "Juego actualizado exitosamente con ID = " + juegoId,
+                    juego: updatedObject,
+                });
+            }
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Error -> No se puede actualizar el juego con ID = " + juegoId,
+            error: error.message
+        });
+    }
+};
+
+// Eliminar un juego por ID
+exports.deleteJuegoById = async (req, res) => {
+    try {
+        let juegoId = req.params.id;
+        let juego = await Juego.findByPk(juegoId);
+
+        if (!juego) {
+            res.status(404).json({
+                message: "No existe un juego con ID = " + juegoId,
+                error: "404",
+            });
+        } else {
+            await juego.destroy();
+            res.status(200).json({
+                message: "Juego eliminado exitosamente con ID = " + juegoId,
+                juego: juego,
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Error -> No se puede eliminar el juego con ID = " + juegoId,
+            error: error.message,
+        });
+    }
+};

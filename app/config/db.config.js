@@ -27,4 +27,5 @@ db.sequelize = sequelize;
 db.User = require('../models/user.model.js')(sequelize, Sequelize);
 db.Proyecto = require('../models/proyecto.model.js')(sequelize, Sequelize);
 db.Tarea = require('../models/tarea.model.js')(sequelize, Sequelize);
+db.Juego = require('../models/juego.model.js')(sequelize, Sequelize);
 module.exports = db;
